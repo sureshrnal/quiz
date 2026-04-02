@@ -1,0 +1,106 @@
+!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced MCQ Quiz App</title>
+<style>
+body { font-family: Arial; background:#eef2f7; margin:0; }
+.container { max-width:700px; margin:30px auto; background:#fff; padding:20px; border-radius:10px; }
+h2 { margin-bottom:10px; }
+button { width:100%; padding:10px; margin:5px 0; font-size:16px; }
+.correct { background:green; color:white; }
+.wrong { background:red; color:white; }
+.top-bar { display:flex; justify-content:space-between; }
+</style>
+</head>
+<body><div class="container" id="loginPage">
+<h2>Login</h2>
+<input type="text" id="username" placeholder="Enter name"><br><br>
+<button onclick="login()">Start Quiz</button>
+</div><div class="container" id="quizPage" style="display:none;">
+<div class="top-bar">
+<span id="timer">Time: 60</span>
+<span id="score">Score: 0</span>
+</div>
+<h2 id="question"></h2>
+<div id="options"></div>
+<button onclick="nextQuestion()">Next</button>
+</div><div class="container" id="resultPage" style="display:none;">
+<h2>Quiz Completed</h2>
+<p id="finalScore"></p>
+<button onclick="restart()">Restart</button>
+</div><script>
+const questions = [
+  {q:"2+2?", options:["3","4","5","6"], answer:"4", category:"Math"},
+  {q:"Capital of India?", options:["Delhi","Mumbai","Chennai","Kolkata"], answer:"Delhi", category:"GK"},
+  {q:"5*3?", options:["15","10","20","25"], answer:"15", category:"Math"},
+  {q:"Sun rises in?", options:["East","West","North","South"], answer:"East", category:"GK"}
+];
+
+let score=0;
+let currentQ;
+let time=60;
+let timerInterval;
+let asked=[];
+
+function login(){
+ document.getElementById("loginPage").style.display="none";
+ document.getElementById("quizPage").style.display="block";
+ startTimer();
+ loadQuestion();
+}
+
+function startTimer(){
+ timerInterval=setInterval(()=>{
+  time--;
+  document.getElementById("timer").innerText="Time: "+time;
+  if(time<=0){ finishQuiz(); }
+ },1000);
+}
+
+function loadQuestion(){
+ if(asked.length===questions.length){ finishQuiz(); return; }
+ let index;
+ do { index=Math.floor(Math.random()*questions.length);} while(asked.includes(index));
+ asked.push(index);
+ currentQ=questions[index];
+
+ document.getElementById("question").innerText=currentQ.q;
+ const optionsDiv=document.getElementById("options");
+ optionsDiv.innerHTML="";
+
+ currentQ.options.forEach(opt=>{
+  const btn=document.createElement("button");
+  btn.innerText=opt;
+  btn.onclick=()=>checkAnswer(btn,opt);
+  optionsDiv.appendChild(btn);
+ });
+}
+
+function checkAnswer(btn,selected){
+ const buttons=document.querySelectorAll("#options button");
+ buttons.forEach(b=>b.disabled=true);
+
+ if(selected===currentQ.answer){
+  btn.classList.add("correct");
+  score++;
+ } else {
+  btn.classList.add("wrong");
+ }
+ document.getElementById("score").innerText="Score: "+score;
+}
+
+function nextQuestion(){ loadQuestion(); }
+
+function finishQuiz(){
+ clearInterval(timerInterval);
+ document.getElementById("quizPage").style.display="none";
+ document.getElementById("resultPage").style.display="block";
+ document.getElementById("finalScore").innerText="Your Score: "+score;
+}
+
+function restart(){
+ location.reload();
+}
+</script></body>
+</html>
